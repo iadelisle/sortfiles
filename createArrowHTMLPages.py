@@ -2,6 +2,7 @@ import json
 import glob
 import tqdm
 import os
+import time
 from json2html import *
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
@@ -20,10 +21,14 @@ def sortFile(file):
         json.dump(jsonDict,f)
 
 def createHTML(file):
-    fObj = open(file)
+    fObj = open(os.path.basename(file))
     jsonDict = json.load(fObj)
-    Func = open(str(file) + ".html", "w")
-    previous, nexts = pointerDict[str(file) + ('.html')] 
+    fObj.close()
+    previous, nexts = pointerDict[str(file)]
+    previous = os.path.basename(previous)
+    previous = previous + ".html"
+    nexts = os.path.basename(nexts)
+    nexts = nexts + ".html" 
     html_code = f"""
     <!DOCTYPE html>
     <html>
@@ -60,7 +65,7 @@ def createHTML(file):
 
     rawHtml = json2html.convert(jsonDict)
     rawHtml = html_code + rawHtml
-
+    Func = open(str(file) + ".html", "w", encoding='utf-8')
     Func.write(rawHtml)
     Func.close()
 
@@ -68,16 +73,19 @@ def isExtractedText(file):
     fObj = open(file)
     jsonDict = json.load(fObj)
     if 'extractedText' in jsonDict.keys():
-        extractedTextFileList.append(file)
+        if (jsonDict['extractedText']):
+            extractedTextFileList.append(file)
+        else:
+            pointerList.append(file)
     else:
         pointerList.append(file)
 
 if __name__ == "__main__":
 
 
-    os.mkdir('html')
-    os.mkdir('html\extractedText')
-    os.mkdir('html\regularFiles')
+    #os.mkdir('html', exist_ok=True)
+    os.makedirs('html//extractedText', exist_ok=True)
+    os.makedirs('html//regularFiles', exist_ok=True)
 
     fileList = []
     
@@ -105,13 +113,12 @@ if __name__ == "__main__":
                 pbar.update(1)
 
 
-
     fileList = extractedTextFileList
     for i in range(len(fileList)):
         fileList[i] = 'html//extractedText//' + fileList[i]
     #create arrow pointers from extractedTextList
     for i in tqdm(range(len(fileList))):
-        if (i > 0 and i < len(fileList)-2):
+        if (i > 0 and i < len(fileList)-1):
             newDict[fileList[i]] = (fileList[i-1], fileList[i+1])
         if i == 0:
             newDict[fileList[i]] = ('tableOfContents', fileList[i+1])
@@ -127,7 +134,7 @@ if __name__ == "__main__":
     for i in range(len(fileList)):
         fileList[i] = 'html//regularFiles//' + fileList[i]
     for i in tqdm(range(len(fileList))):
-        if (i > 0 and i < len(fileList)-2):
+        if (i > 0 and i < len(fileList)-1):
             newDict[fileList[i]] = (fileList[i-1], fileList[i+1])
         if i == 0:
             newDict[fileList[i]] = ('tableOfContents', fileList[i+1])
@@ -137,23 +144,25 @@ if __name__ == "__main__":
     json.dump(newDict, open( "regularPointerList.json", 'w' ) )
 
     # Create ExtractedPointer HTML Files
-    pointerDict = json.load('extractedTextFilePointers.json')
+    fObj = open('extractedTextFilePointers.json')
+    pointerDict = json.load(fObj)
+    fObj.close()
 
-    with tqdm(total=len(fileList)) as pbar:
+    with tqdm(total=len(extractedTextFileList)) as pbar:
         with ThreadPoolExecutor(max_workers=os.cpu_count() - 2) as ex:
-            futures = [ex.submit(createHTML, file) for file in fileList]
+            futures = [ex.submit(createHTML, file) for file in extractedTextFileList]
             for future in as_completed(futures):
                 result = future.result()
                 pbar.update(1)
     # Create RegularPointerFiles 
-
-    pointerDict = json.load('regularPointerList.json')
-    with tqdm(total=len(fileList)) as pbar:
+    fObj = open('regularPointerList.json')
+    pointerDict = json.load(fObj)
+    fObj.close()
+    with tqdm(total=len(pointerList)) as pbar:
         with ThreadPoolExecutor(max_workers=os.cpu_count() - 2) as ex:
-            futures = [ex.submit(createHTML, file) for file in fileList]
+            futures = [ex.submit(createHTML, file) for file in pointerList]
             for future in as_completed(futures):
                 result = future.result()
                 pbar.update(1)
-
 
         
