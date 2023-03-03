@@ -23,6 +23,6 @@ if __name__ == "__main__":
 
     toc_html += '\t</ul>\n</body>\n</html>'
 
-    with open("tableOfContents.html", "w", encoding="utf-8") as f:
+    with open("_tableOfContents.html", "w", encoding="utf-8") as f:
         f.write(toc_html)
 
