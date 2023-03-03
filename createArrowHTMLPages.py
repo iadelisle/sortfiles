@@ -121,9 +121,9 @@ if __name__ == "__main__":
         if (i > 0 and i < len(fileList)-1):
             newDict[fileList[i]] = (fileList[i-1], fileList[i+1])
         if i == 0:
-            newDict[fileList[i]] = ('tableOfContents', fileList[i+1])
+            newDict[fileList[i]] = ('_tableOfContents', fileList[i+1])
         if i == len(fileList) - 1:
-            newDict[fileList[i]] = (fileList[i-1], 'tableOfContents')
+            newDict[fileList[i]] = (fileList[i-1], '_tableOfContents')
 
     json.dump( newDict, open( "extractedTextFilePointers.json", 'w' ) )
 
@@ -137,9 +137,9 @@ if __name__ == "__main__":
         if (i > 0 and i < len(fileList)-1):
             newDict[fileList[i]] = (fileList[i-1], fileList[i+1])
         if i == 0:
-            newDict[fileList[i]] = ('tableOfContents', fileList[i+1])
+            newDict[fileList[i]] = ('_tableOfContents', fileList[i+1])
         if i == len(fileList) - 1:
-            newDict[fileList[i]] = (fileList[i-1], 'tableOfContents')
+            newDict[fileList[i]] = (fileList[i-1], '_tableOfContents')
 
     json.dump(newDict, open( "regularPointerList.json", 'w' ) )
 
