@@ -8,6 +8,11 @@ from tqdm import tqdm
 
 
 
+
+
+
+
+
 def sortFile(file):
     fObj = open(file)
     jsonDict = json.load(fObj)
@@ -26,6 +31,7 @@ def createHTML(file):
     jsonDict = json.load(fObj)
     jsonDict = jsonDict[0]
     Func = open(str(file) + ".html", "w")
+    previous, nexts = pointerDict[file]
     Func.write(json2html.convert(jsonDict))
     Func.close()
 
@@ -35,11 +41,50 @@ def createHTML(file):
 if __name__ == "__main__":
     fileList = []
 
+previous = ''
+nexts = ''
+
+html_code = f"""
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		.arrow-container {{
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			width: 200px;
+			margin: 0 auto;
+		}}
+		
+		.prev-file, .next-file {{
+			font-size: 24px;
+			color: #000;
+			text-decoration: none;
+			margin: 0 10px;
+		}}
+		
+		.prev-file:hover, .next-file:hover {{
+			color: #555;
+		}}
+	</style>
+</head>
+<body>
+	<div class="arrow-container">
+		<a href="#" class="prev-file">f{previous};</a>
+		<a href="#" class="next-file">f{nexts};</a>
+	</div>
+</body>
+</html>
+"""
+
+
 
     path = "**\\*.json"
     for file in glob.glob(path, recursive=True):
         fileList.append(file)
 
+    pointerDict = json.loads('pointerDict.json')
 
 
 

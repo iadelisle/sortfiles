@@ -22,8 +22,10 @@ def sortFile(file):
 def createHTML(file):
     fObj = open(file)
     jsonDict = json.load(fObj)
-    Func = open(str(file) + ".html", "w")
-    previous, nexts = pointerDict[str(file) + ('.html')] 
+    Func = open(str(file) + ".html", "w", encoding='utf-8')
+    previous, nexts = pointerDict[str(file)] 
+    previous = previous + '.html'
+    nexts = nexts + ".html"
     html_code = f"""
     <!DOCTYPE html>
     <html>
@@ -75,9 +77,12 @@ def isExtractedText(file):
 if __name__ == "__main__":
 
 
-    os.mkdir('html')
-    os.mkdir('html\extractedText')
-    os.mkdir('html\regularFiles')
+        os.makedirs(path, exist_ok=True)
+
+
+        os.mkdir('html', exist_ok = True)
+        os.mkdirs('html\extractedText', exist_ok = True)
+        os.mkdirs('html\regularFiles', exist_ok = True)
 
     fileList = []
     
